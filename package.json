@@ -1,0 +1,22 @@
+{
+  "name": "emergency-electric-repair",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "stripe": "^14.14.0",
+    "@google/generative-ai": "^0.2.1",
+    "@react-google-maps/api": "^2.19.2",
+    "@next/third-parties": "^14.1.0",
+    "lucide-react": "^0.330.0",
+    "googleapis": "^133.0.0"
+  }
+}
