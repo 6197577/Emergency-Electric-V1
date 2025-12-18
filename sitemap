@@ -1,0 +1,30 @@
+src/
+├── app/
+│   ├── page.jsx                  (Home / $995 Gate / Amanda Bot)
+│   ├── layout.jsx                (Global Header / Footer / Social Icons)
+│   ├── book-inspection/
+│   │   └── page.jsx              ($399 Scheduled Service)
+│   ├── locations/
+│   │   └── [slug]/
+│   │       └── page.jsx          (50 pSEO City Pages)
+│   ├── products/
+│   │   └── inspection-tool/
+│   │       └── page.jsx          (SaaS Sales / $129 Lease / Inspector Bot)
+│   ├── track/
+│   │   └── [jobId]/
+│   │       └── page.jsx          (Google Maps GPS Tracking)
+│   ├── resources/
+│   │   └── page.jsx              (Donations QR / Contract Forms)
+│   └── api/
+│       ├── chat/route.js         (Gemini AI Router)
+│       ├── checkout/route.js     (Stripe Logic)
+│       └── webhook/route.js      (Automation Trigger)
+├── components/
+│   ├── Header.jsx
+│   ├── Footer.jsx                (Social Hub Links)
+│   ├── DiagnosticTool.jsx        (React Troubleshooter)
+│   ├── VideoGallery.jsx          (YouTube Commercials)
+│   └── ServiceIntake.jsx         (Address Logic)
+└── lib/
+    ├── google-sheets.js          (Database Connection)
+    └── voss-logic.js             (AI Personality Scripts)
