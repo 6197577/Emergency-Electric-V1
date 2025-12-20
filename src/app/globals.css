@@ -1,1 +1,16 @@
+/* basic reset + utility base for Tailwind if used */
+:root {
+  --bg: #ffffff;
+  --text: #0f172a;
+}
 
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
