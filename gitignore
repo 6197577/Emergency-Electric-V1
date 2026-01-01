@@ -4,7 +4,7 @@ STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # 2. GOOGLE CLOUD (AI & Database)
-GOOGLE_API_KEY=AIzaSy... (Gemini API)
+GOOGLE_API_KEY=AIzaSyCkRIGuH2IyOhEZaQdRgYn3BQRkIEMQll8
 GOOGLE_SHEETS_ID=1x... (The ID from your Master Sheet URL)
 GOOGLE_DRIVE_FOLDER_ID=1y... (For saving contracts/photos)
 
