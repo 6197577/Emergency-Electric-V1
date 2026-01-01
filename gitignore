@@ -7,6 +7,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 GOOGLE_API_KEY=AIzaSyCkRIGuH2IyOhEZaQdRgYn3BQRkIEMQll8
 GOOGLE_SHEETS_ID=1x... (The ID from your Master Sheet URL)
 GOOGLE_DRIVE_FOLDER_ID=1y... (For saving contracts/photos)
+GOOGLE_MAPS_API_KEY=
 
 # 3. SERVICE ACCOUNT (The "Robot" User)
 # Download JSON from Google Cloud > IAM > Service Accounts
