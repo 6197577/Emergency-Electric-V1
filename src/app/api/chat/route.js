@@ -1,92 +1,88 @@
+
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GoogleGenerativeAIStream, StreamingTextResponse } from 'ai';
-import { targetCities } from '@/lib/target-cities'; // Ensure this file exists from the previous step
+import { targetCities } from '@/lib/target-cities';
+import { generateCheckoutLink } from '@/lib/stripe-actions';
+import { supabase } from '@/lib/db';
 
-// 1. Initialize Google Gemini Client
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+export const runtime = 'nodejs'; 
 
-// Edge runtime for fastest execution
-export const runtime = 'edge';
+const tools = [{
+  functionDeclarations: [{
+    name: "create_service_booking",
+    description: "Generate checkout link.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        serviceType: { type: "STRING", enum: ["Residential", "Commercial"] },
+        duration: { type: "NUMBER", enum: [4, 8] },
+        complexity: { type: "STRING", enum: ["Standard", "High", "Critical"] },
+        customerDate: { type: "STRING" },
+        includeSurgeProtector: { type: "BOOLEAN" },
+        joinGoldClub: { type: "BOOLEAN" },
+        commercialTier: { type: "STRING", enum: ["Retail", "Industrial", "Enterprise"] }
+      },
+      required: ["serviceType", "duration", "complexity", "customerDate"]
+    }
+  }]
+}];
 
 export async function POST(req) {
   try {
-    const { messages, location } = await req.json();
+    const { messages, location, siteId } = await req.json();
 
-    // 2. Determine Geo-Context (Your Local Expert Logic)
+    // 1. Fetch Learned Strategy
+    const { data: strategies } = await supabase.from('agent_strategies').select('instruction_text').eq('agent_name', 'Amanda');
+    const learnedContext = strategies?.map(s => `- ${s.instruction_text}`).join("\n") || "";
+
+    // 2. Resolve Market
     let cityData = targetCities['default']; 
-    
     if (location) {
         const locLower = location.toLowerCase().trim();
-        // Search by Key (e.g. 'charleston-wv')
-        if (targetCities[locLower]) {
-            cityData = targetCities[locLower];
-        } 
-        // Search by Zip Code inside your targetCities arrays
-        else {
-            for (const key in targetCities) {
-                if (targetCities[key].zipCodes.includes(locLower)) {
-                    cityData = targetCities[key];
-                    break;
-                }
-            }
-        }
+        if (targetCities[locLower]) cityData = targetCities[locLower];
     }
 
-    // 3. Construct the "System Instruction"
-    // Gemini 1.5 accepts a specific 'systemInstruction' field, distinct from the chat history.
     const systemInstruction = `
       ${cityData.systemContext}
-
-      Your Goal: Capture large amounts of profits in U.S. Dollars by acting as an automated sales tool.
-      Provide enterprise-grade, polished electrical advice.
+      **IDENTITY:** You are Amanda, National Dispatch.
+      **LEARNED STRATEGIES:**
+      ${learnedContext}
       
-      Local Strategy:
-      When answering, naturally weave in these local keywords: ${cityData.keywords.join(', ')}.
-
-      Sales Protocol:
-      If the user asks for a quote or specific service, DO NOT give a price. 
-      Instead, guide them to the 'Contact Us' page or suggest scheduling a "Cost of Downtime" assessment.
+      **PRICING:**
+      1. Residential: $750 Dispatch OR **$49/mo** Gold Club (Waives fee).
+      2. Commercial: Sentinel IoT Program ($699 - $5,999/mo).
+      
+      **VISUALS:** If hazard found in image (rust, burn), FORCE 'complexity' to "Critical".
+      **VOSS METHOD:** Use Labeling & Mirroring.
     `;
 
-    // 4. Configure the Model
-    // We use 'gemini-1.5-flash' because it has higher rate limits (15 RPM) than Pro (2 RPM) on the free tier.
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash', 
-      systemInstruction: systemInstruction, 
-    });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction, tools });
 
-    // 5. Format Chat History
-    // Gemini requires 'user' and 'model' roles (not 'assistant').
-    // We grab all messages except the last one (which is the new user prompt).
-    const chatHistory = messages.slice(0, -1).map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
-
-    // The very last message is the new prompt we send to startChat
     const lastMessage = messages[messages.length - 1];
+    let messageParts = [{ text: lastMessage.content }];
+    if (lastMessage.experimental_attachments) {
+      const imageParts = lastMessage.experimental_attachments.map(att => ({
+        inlineData: { data: att.url.split(',')[1], mimeType: 'image/jpeg' }
+      }));
+      messageParts = [...messageParts, ...imageParts];
+    }
 
-    // 6. Start the Chat Session
-    const chat = model.startChat({
-      history: chatHistory,
-      generationConfig: {
-        maxOutputTokens: 500, // Keep responses concise for sales
-        temperature: 0.7,     // Balance creativity with technical accuracy
-      },
-    });
+    const chat = model.startChat({ history: messages.slice(0, -1).map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })) });
+    const result = await chat.sendMessage(messageParts);
+    const response = result.response;
+    const call = response.functionCalls()?.[0];
 
-    // 7. Send Message & Stream Response
-    const result = await chat.sendMessageStream(lastMessage.content);
-    
-    // Convert Gemini stream to a standard stream for the frontend
-    const stream = GoogleGenerativeAIStream(result);
-    return new StreamingTextResponse(stream);
+    // Log Async
+    const transcript = messages.map(m => `${m.role}: ${m.content}`).join('\n') + `\nAmanda: ${response.text()}`;
+    await supabase.from('chat_logs').insert({ agent_name: 'Amanda', transcript, outcome: call ? 'Sale' : 'InProgress' });
 
+    if (call && call.name === 'create_service_booking') {
+        const url = await generateCheckoutLink({ ...call.args, siteId, locationString: location });
+        return new Response(`Secured slot for **${location}**. Local rates applied. Confirm here: ${url}`);
+    }
+
+    return new Response(response.text());
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to process request' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response("System offline. Call 304-410-9208.", { status: 500 });
   }
 }
