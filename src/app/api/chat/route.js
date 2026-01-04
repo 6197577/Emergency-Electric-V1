@@ -49,7 +49,7 @@ export async function POST(req) {
       ${learnedContext}
       
       **PRICING:**
-      1. Residential: $750 Dispatch OR **$49/mo** Gold Club (Waives fee).
+      1. Residential: $750 Dispatch OR **$49/mo** DIY Gold Club (Waives fee).
       2. Commercial: Sentinel IoT Program ($699 - $5,999/mo).
       
       **VISUALS:** If hazard found in image (rust, burn), FORCE 'complexity' to "Critical".
