@@ -1,30 +1,59 @@
 src/
 ├── app/
-│   ├── page.jsx                  (Home / $995 Gate / Amanda Bot)
-│   ├── layout.jsx                (Global Header / Footer / Social Icons)
-│   ├── book-inspection/
-│   │   └── page.jsx              ($399 Scheduled Service)
-│   ├── locations/
-│   │   └── [slug]/
-│   │       └── page.jsx          (50 pSEO City Pages)
-│   ├── products/
-│   │   └── inspection-tool/
-│   │       └── page.jsx          (SaaS Sales / $129 Lease / Inspector Bot)
-│   ├── track/
-│   │   └── [jobId]/
-│   │       └── page.jsx          (Google Maps GPS Tracking)
-│   ├── resources/
-│   │   └── page.jsx              (Donations QR / Contract Forms)
-│   └── api/
-│       ├── chat/route.js         (Gemini AI Router)
-│       ├── checkout/route.js     (Stripe Logic)
-│       └── webhook/route.js      (Automation Trigger)
+│   ├── page.jsx                      (Home / Amanda AI Dispatcher)
+│   ├── layout.jsx                    (Global Providers: Auth, Stripe)
+│   ├── error.jsx                     (Global Error Boundary)
+│   │
+│   ├── (public)/                     (Grouper: Public Marketing Pages)
+│   │   ├── book-inspection/
+│   │   │   └── page.jsx              ($399 Checkout Flow)
+│   │   ├── locations/
+│   │   │   └── [slug]/
+│   │   │       └── page.jsx          (50 pSEO City Pages)
+│   │   ├── track/
+│   │   │   └── [jobId]/
+│   │   │       └── page.jsx          (Customer View: "Technician En Route")
+│   │   └── resources/
+│   │       └── page.jsx              (QR Codes / Contracts)
+│   │
+│   ├── (private)/                    (Grouper: Authenticated Portals)
+│   │   ├── admin/
+│   │   │   ├── payouts/
+│   │   │   │   └── page.jsx          (The Dashboard we just built)
+│   │   │   └── analytics/
+│   │   │       └── page.jsx          (Revenue Charts)
+│   │   └── partners/
+│   │       ├── login/
+│   │       │   └── page.jsx          (Magic Link Entry)
+│   │       └── dashboard/
+│   │           └── page.jsx          (Job Board & Uploads)
+│   │
+│   └── api/                          (The Invisible Brain)
+│       ├── chat/
+│       │   └── route.js              (Gemini AI Logic)
+│       ├── webhooks/
+│       │   ├── stripe/
+│       │   │   └── route.js          (Payment Confirmation Listener)
+│       │   └── iot/
+│       │       └── route.js          (Sensor Alerts)
+│       └── admin/
+│           └── approve-work/
+│               └── route.js          (Secure Payout Trigger)
+│
 ├── components/
-│   ├── Header.jsx
-│   ├── Footer.jsx                (Social Hub Links)
-│   ├── DiagnosticTool.jsx        (React Troubleshooter)
-│   ├── VideoGallery.jsx          (YouTube Commercials)
-│   └── ServiceIntake.jsx         (Address Logic)
+│   ├── ui/                           (Reusable Buttons/Cards)
+│   ├── layouts/
+│   │   ├── Header.jsx
+│   │   └── Footer.jsx
+│   ├── features/
+│   │   ├── ChatInterface.jsx         (The Amanda Bot UI)
+│   │   ├── VideoGallery.jsx          (YouTube Embeds)
+│   │   └── DiagnosticTool.jsx        (React Form Logic)
+│   └── dashboard/
+│       └── EvidenceGallery.jsx       (Photo Grid for Admin)
+│
 └── lib/
-    ├── google-sheets.js          (Database Connection)
-    └── voss-logic.js             (AI Personality Scripts)
+    ├── supabase.js                   (Client-side DB connection)
+    ├── supabase-admin.js             (Server-side "God Mode" connection)
+    └── ai-personalities.js           (Voss Negotiation Logic / Prompts)
+
