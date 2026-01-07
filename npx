@@ -1,2 +1,1 @@
-
-
+npx create-next-app@latest electric-doctor# (Select 'Yes' for everything: TypeScript? No. Tailwind? Yes. App Router? Yes.)# 2. Go into the foldercd electric-doctor# 3. Install the "Brain" (Dependencies)npm install @supabase/supabase-js @supabase/auth-helpers-nextjs stripe @google/generative-ai lucide-react clsx tailwind-merge resend
